@@ -1,0 +1,595 @@
+\section{Introduction}
+Using 3D visualisation in reconstruction of lost sites of high historical significance has become a popular way of communicating the results of years of research conducted by archaeologists and historians  to general public \cite{Heritage_trends}. Initially, such works were predominantly focused on reconstructing destroyed or partially destroyed architecture (e.g. Roman Colosseum) \cite{Colosseum_crowds}. Such reconstructions help to simulate significant historical sites in all their former glory and facilitate appreciation of what remained from that glory (normally in the form of ruins).  With modern advancement in research in development, we are now reaching the stage when reconstructing a heritage site can become relatively cheap. A procedural approach to generating historically informed designs of high complexity can be automated by design grammars, so that a large city can be created in a matter of days.  One of the well known examples of using this approach in historical reconstructions is the Rome Reborn project \cite {rome_reborn}, where a virtual reconstruction of the entire city of ancient Rome in the period of 320 AD was procedurally generated.
+
+While 3D simulation of buildings and artefacts provides a unique possibility for general audiences to examine the architectural details of the heritage site it still does not help an observer to understand how this site has been enacted in the past. Without being able to see ordinary people performing their daily choirs and rituals the observer is unable to immerse in the actual culture of the reconstructed society and have a complete picture about their way of life. It is possible to simulate such people using so-called ``virtual agents''. These virtual agents are essentially autonomous computer programs that are represented by human-like 3-dimensional figures (called avatars) that move around the reconstructed environment and simulate ancient citizens of the simulated site.  Modern video games are a good illustration in regards to possibilities that arise with employment of such virtual agents in simulating human behaviour. But the cost of developing video games is enormous. For example, the estimated cost of developing Crysis 3, one of the popular modern video games, is \$66 Million \cite{Crysis_development_cost}. It's hard to imagine such level of spending when it comes to historical simulations, so populating a historical environment with virtual agents needs to be automated.
+
+Aiming to achieve cost saving, some researchers don't model their societies at the level of individual agents, but employ ``virtual crowds'' \cite{Colosseum_crowds}. While such crowds essentially consist of a large number of virtual agents, designing a crowd normally comes down to designing a few individuals and then replicating them a desired number of times with slight modifications so that the crowd appears to be diverse. The state of the art in using agent crowds in historical simulations is outlined in \cite{heritage_pompeii} where a virtual City of Pompeii is populated with a large number of simulated people, who simply walk around the city avoiding collisions. In this work the virtual agents give a perception about the appearance of the ancient people who used to populate Pompeii, but these people are not involved in historically authentic interactions. So they play a role of moving objects and can only extend the atmosphere of the culture simulation, while offering little in regards to understanding everyday life in the simulated society.
+
+A number of crowd simulation and crowd generation approaches appear in the literature but hardly any of them advance beyond having avatars moving around and carrying objects with them.  Further in the paper we show how through simulation of physiological needs and motivations together with personality traits we can achieve much more sophisticated simulations of human behaviour. Furthermore, employing genetic methods for inheriting personality traits and appearance characteristics together with connecting virtual agents with formalisations of social roles and social norms allows for a similar level of complexity in crowd based simulations as seen in commercial video games.
+
+The remainder of the paper is structured as follows. Section~\ref{sec:Approach} presents motivation for selecting the combination of genetics, social norms, personality and physiological motivations as a way of advancing the state of the art in historical simulations. Section~\ref{sec:Methodology} presents our methodology to be employed for creating such simulations. Section~\ref{sec:CaseStudy} shows how the aforementioned methodology was applied to a particular case study: simulating everyday life in the ancient city of Uruk, 3000 B.C. In section~\ref{sec:evaluation} we analyse the results obtained from the Uruk study. %Finally, section~\ref{sec:conclusion} summarises our contributions.
+ 
+
+%\begin{enumerate}
+%\item There is an increasing demand for visualising results of various simulations.
+%\item A specific group of social and cultural simulations demands visualisation in 3D space.
+%These scenarios often require large crowds, and it is not feasible to use humans for large crowds.
+%\item Humans can be substituted by well established technology of intelligent virtual agents (IVA). 
+%\item In many occasions it is required, that human participants of a simulation interact with IVA.
+%\item When interacting with IVA, we want them to be believable. Believability can be achieved on two levels: macro (overlooking the crowd, easier) and micro (detailed crowd, harder). What we seek is the believability on the micro level. 
+%\item Crowd believability can be partially achieved by having agents with a unique appearance and a unique behavior.
+%\item The most straightforward method is to randomize appearance and actions of agents. For the purposes of cultural and social simulations, where agent belong into specific ethnic and cultural groups, this is not desirable.
+%\item We can employ traditional methods of crowd simulations (scientific, vs. massive), which allow us to either generate unique appearance of the crowd (scientific), or achieve ÒuniqueÓ behavior (massive), but these as well fail in the context of cultural and social simulations. 
+%\item These existing methods, mainly employ some version of decision trees; therefore it is difficult to maintain and extend existing simulations (e.g. with a new culture, or role), and are likely to be used for animation purposes (movies) then continuous execution in a simulation.
+%\item Moreover, existing methods hardly allow human interactions with IVA. 
+%item What remains is the manual definition of appearance, behavior and interactions for each individual agent which takes a lot of effort to design and execute believeable IVA.
+%\item As none of the existing solution provides sufficient support for cultural and social simulations, there is a need for new methods of generating believable cultural and social crowds.
+%\item We did a rigid review of the existing literature from several various fields and came up with a new framework for generating crowds, based on methods from Artificial intelligence, artificial life, crowd simulation and genetic reproduction.
+%\item We propose an open system, where agent interactions are controlled by well-established OCMAS - Electronic Institutions, agent goals are selected by its physiological needs and agent actions are driven by its personality (OCEAN).
+%\item Using EI, we immediately gain the advantage of using social MAS, with notion of roles, where interactions between roles (undertaken either by humans or agents) is controlled using pre-defined protocols or specific norms. Moreover, agents can use the specification of EI to automatically reason about the possible actions.
+%\item SHALL I GO ABOUT THE VIRTUAL WORLD OBJECTS?
+%\item Using approaches from A-Life, with physiology, we gain a mechanism, which drives the selection of agent goals. We can simulate several physiological processes, i.e. metabolism, energy depletion, and visually express their change, i.e. discomfort when hungry. Moreover, we can simulate various physiological needs for each agent, by specifying physiological modifiers, that either increase or decrease the speed of physiological process.
+%\item Using agent personality, we gain a powerful action decision making mechanism, where agents take actions most closely related to their personality profile, e.g. aggressive agents, when hungry will rob food, while low-confidence agent will beg.
+%\item Having individual agents with a specific personality, physiological needs, and manually defined appearance, we can encode personality, physiology and appearance values into genetic structures, i.e. chromosomes, and using approaches from genetic algorithms we can generate agents with unique appearance and behavior, but maintaining the cultural and social context of both parents. 
+%\item As a result, we can automatically generate large, social and cultural crowds of intelligent virtual agents with a unique appearance and a behaviour, where agents can interact with humans and their goals are driven by their physiological needs, while their action are decided by their personality.  
+
+%\end{enumerate}
+
+%\section{Background}
+%\label{sec:Background}
+
+%Crowd generation methods vary in how to model a single individual and the approach of making every crowd individual unique. In one of the first attempts to generate a population of unique 3D characters, \cite{decarlo98} created a system that generated facial models. The model was based on randomisation of anthropometric measures applied to B-spline surfaces. Later, \cite{blantz99} used Principal Component Analysis (PCA) to analyse datasets of facial features to extract base vectors from the face, and used these vectors to generate new, unique faces. \cite{allen03} extended this work to generate the whole body of an avatar. A different approach was taken by \cite{maim2009} and \cite{thalmann2007} who used variance of attachments and textures over a predefined set of avatars, where avatars mainly varied in size and the type of textures they used while still appearing as clones that undergone a minor modification.
+
+%In other works, authors considered different means of crowd generation, and they isolated specific body and clothing parameters which deform related 3D models. The values of these parameters can be randomised in order to produce unique crowd members \cite{seo2003} \cite{magnenat2004}. Ventrella was one of the first to explore the possibilities of storing and modifying such properties in a "chromosome,'' represented by an array of integer values \cite{ventrella00}. 
+
+%While Ventrella worked with 2D sketches, \cite{lewis2000a} applied the genetic approach to 3D avatars. In these works, authors presented the way of mapping body parameters (e.g. hip size, back arch) to 3D models, encoding them into avatar genes and generating new avatars using these genes. Taking the previous work one step further, \cite{vieira08} and \cite{vieira10} closely followed the genetic inheritance processes from the biological perspective, where each child chromosome holds a copy of mother's and father's chromosome.  
+ 
+%In our approach of avatar generation \cite{trescak2012v}, we do not follow the biological evolution like \cite{vieira08}, rather we apply approaches from genetic algorithms. Similar to \cite{lewis2000a}, we encode visual properties to genes, which form chromosomes. We use genetic operators to generate new, unique individuals. Our contribution is the definition of new techniques applied during replication, such as genotype rules for fine control over replication, or deep inheritance, which provides the possibility of inheritance of features from our far ancestors. 
+
+%While previous works deal only with the appearance of generated crowd, authors also explored various aspects of crowd behaviour.  Most of authors analyse navigation \cite{lamarche2004} or crowd behaviour and model it for various purposes, such as building evacuation \cite{pelechano2006}. Among others, Musse et al. presented a model of the crowd that captured various crowd relationships and presented mechanisms for efficient analysis of the collision detection \cite{musse1997}. 
+
+%Only few works explored real-time crowd simulation using intelligent virtual agents. These works concern military training \cite{silverman2006a} or emergency training \cite{thompson1995}. One of the most comprehensive insight into crowd dynamics was presented \cite{still2000}, studying various aspects of the crowd behaviour, such as grouping or flocking. Ulicny et al. in their work present one of the first models for real-time crowd behaviour \cite{ulicny2002}, where behaviour is declaratively specified using a domain specific language. Thalmann in his work \cite{thalmann2007} analyses various aspects and possibilities for real-time crowd simulation.
+
+%Similar to our approach, Durupinar et al. \cite{durupinar2008} are using OCEAN personality model \cite{john1990} as a decision mechanism for agent actions. Authors present their results in the domain of HiDAC (High- Density Autonomous Crowds) system. On contrary to our approach, authors are not interested in the personality of an individual per se but the incorporation of a personality model into large groups of people. Therefore; this work counts with gaussian distribution of personalities only between groups and not individuals. Moreover, presented work relies only on existing physiological models of HiDAC system as a goal selection mechanism and does not consider other motivators.  
+
+%To our current knowledge, no work presents methods that combines visual and behavioural aspects of the crowd generation. Therefore, 
+%In this work, we advance the state-of-the-art by presenting a new methodology for generating crowds with unique appearance and behaviour, where agents select their goals based on their various motivations and create their plans depending on their personality, social norms and the state of the environment. 
+
+%\section{Methodology}
+
+% In the domains that this work is concerned with, we need to simulate crowds of different ethnic, social or cultural background and visualise it in 3D virtual worlds. 
+% % Using approaches from agent-based social simulation [ref], we can operate on the level of an individual belonging to these groups, where each individual is represented by an agent. Many times, it is desired to visualise the course of the agent-based simulation in the virtual 3D space, where agents are represented by intelligent virtual agents. 
+% The reason for using 3D visualisation is either purely artistic (e.g. movie production), educational (e.g. historic simulations) or academic (e.g. better understanding of simulated data). 
+% % , which allow human participants to interact with agents. For the purposes of this work, we are interested in the use of 3D virtual worlds for the educational purposes of social simulations, which visualise societies of agents over period of time. But, 
+% In all these cases, having crowds that look and act believably, significantly improves the experience of either an observer or a human participant. Believability in 3D simulations can be partially achieved, if all agents are visually unique and perform non-uniform actions \cite{mcdonnell2008}. Moreover, agents have to perform actions related to their role or character; we do not want to display avatar portraying king, begging on the street.
+% 
+% % \ldots
+% % Traditional crowd generation techniques use the concept of template individuals \cite{} \cite{}, which appearance is modified using various approaches, such as texture colouring or randomisation of attachments.
+% % \ldots
+% % As mentioned in the introduction section, classical methods of crowd simulation fail to do so in the required social context and we are bound to manual methods with high effort. 
+% 
+% In this section, we present the methodology that facilitates the automatic generation of social and cultural crowds of agents, where each crowd member is visually unique, capable of unique behaviour and can automatically plan and execute its actions in a simulated 3D environment.
+
+\vspace{-3mm}
+\section{Approach}
+\label{sec:Approach}
+
+
+% We can save cost by focusing on automatic crowd generation -> It becomes possible by automating appearance + automating behaviour ->  Automatic appearance is covered in our other paper -> Automatic behaviour becomes possible if if there is a way to automatically generate agent goals -> AI planning can then be used to accomplish these goals -> Our methodology and the steps below will explain how to make this happen -> You need my methodology.
+
+
+% \subsection{Step 1}
+
+Simulation of life in 3D reconstructed historical cities is a costly and time-consuming process, comparable in cost and efforts to development of a commercial video game (involving years of development and millions of dollars in funding \cite{Crysis_development_cost}). Costs and effort can be decreased with automatic generation of population. This is a two-fold process, in which we need to generate the unique appearance and the behaviour of each individual. Unique appearance can be generated by mimicking the biological reproduction, as for example in \cite{trescak2012v}. One way of automatisation of behaviour is to represent individuals as autonomous virtual agents that can generate their goals and act upon them \cite{virtualAgents_planning}. To generate such goals, we propose to use motivation, and in particular physiological motivation, such as hunger, thirst, fatigue and comfort. In this case agents generate their goals upon physiological trigger, e.g. getting hungry. If needed, other types of motivation can be employed, such as safety, love, or self-realisation \cite{maslow1970} \cite{alderfer1969}. 
+
+The problem with classical approaches to agents driven by physiological motivation is that in a historical simulation all such agents would follow the same circadian rhythm (get hungry, thirsty at the same time), what leads to undesired, uniform behaviour. To avoid this, in our methodology, we propose to configure \textit{motivational modifiers}, which affect the decay rate of a given motivation. For example, a hunger modifier affects the pace in which an agent gets hungry. If such modifiers are different for every agent - then every individual follows its own circadian rhythm, executing goals at various time intervals, increasing believability of the simulated population.
+
+In classical Artificial Intelligence (AI), in order to achieve a goal each agent needs a plan. Such plans can be automatically generated using traditional planning techniques \cite{shehory1999} \cite{braubach2005}. Such planning techniques normally model perfectly rational behaviour, which is not always suitable for simulating humans as this results in emotionless, ``robotic'' behaviour. To avoid it, in our methodology, we enrich agents with personalities and emotions, which affect their decisions when creating a plan for a current goal. This approach may even lead to emergent agent behaviour that appears to be closer to human-like reasoning. As an example, imagine a fisherman agent with no personality and emotions, that catches fish when it's hungry. The agent will fish until it succeeds, or until it dies of hunger, unless we manually specify a possible change of plans when hunger level raises to a critical value. In contrast, the same fisherman having personality and emotions may get frustrated when being hungry and unsuccessful. This agent may ``decide'' to stop fishing when frustration level overwhelms the rational decision for fishing and will search for alternatives to feed, such as begging or stealing food. The decision whether to beg or steal would depend on agent's personality.
+
+In the previous example, fisherman represents a specific \textit{social group} of the simulated population. Social groups combine certain classes of individuals that fulfill their goals in a similar way. Combining individuals into social groups allows us to define and program actions on a group level, rather than having to do this on individual level, reducing effort in defining crowd behaviour. 
+
+In human societies, it is not uncommon for members of different social groups to interact with each other and even cooperate in order to fulfill their goals. For example, imagine a fisherman who has to trade fish with a spear-maker in order to replace his broken fishing spear (see Section~\ref{sec:CaseStudy}). A common technique being used in AI to facilitate the kind of interactions between different social groups as in the example above is to employ Organisation-Centred Multi-Agent System (OCMAS). The OCMAS approach is to explicitly formalise social norms of the agent population and connect those norms to the social roles, which represent different population groups. Such social norms capture rules and protocols that drive agent interactions. As a result, agents can use these norms in reasoning to create plans for their current goal. This provides agents the ability to automatically perform their actions depending on their assigned social group.
+
+
+
+\section{Methodology}
+\label{sec:Methodology}
+
+
+Following the approach described above,  we present our methodology separated into several steps that facilitate automatic generation of intelligent agent crowds, where agents generate goals depending on physiological modifiers and plan their actions depending on their personality and in accordance with social norms.
+
+
+\subsection{Step 1: Design the base population}
+
+\label{sec:step1}
+
+Base population represents the initial group of agents used to generate the rest of the crowd. This population has to define the fundamental visual properties of the resulting crowd. Therefore, for each ethnic group that will be generated, there must be at least one couple of avatars, where both individuals maintain the ethnicity-specific visual traits (e.g. asian eyes), while all other non-specific features (e.g. head shape) are varied. Following this approach, during genetic reproduction, ethnicity-specific features are carried on to the following generations \cite{trescak2012v}, while diversity within ethnicity is assured.
+
+
+% For figures use
+%
+\begin{figure}[!ht]
+\sidecaption[t]
+\includegraphics[width=\textwidth]{Images/genes}
+\caption{Genetic reproduction using ``Fuzzy'' operator.}
+\label{fig:genetics}       % Give a unique label
+\end{figure}
+
+
+\begin{figure}[!ht]
+\sidecaption[t]
+\includegraphics[width=0.6\textwidth]{Images/Fuzzy}
+\caption{Using Genetic Operators to Form an Agent's Chromosome.}
+\label{fig:fuzzy}       % Give a unique label
+\end{figure}
+
+%\begin{figure*} 
+%        \centering
+%        \begin{subfigure}[b]{0.66\textwidth}
+%                \centering
+%                \includegraphics[width=0.8\textwidth]{Images/genes}
+%				\caption{Genetic reproduction using ``Fuzzy'' operator}
+%				\label{fig:genetics}
+%        \end{subfigure}%
+%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc.
+%          %(or a blank line to force the subfigure onto a new line)
+%        \begin{subfigure}[b]{0.32\textwidth}
+%                \centering
+%                \includegraphics[width=\textwidth]{Images/Fuzzy}
+%                \caption{Combining genes using fuzzy operator}
+%                \label{fig:fuzzy}
+%        \end{subfigure}
+%	\caption{Using Genetic Operators to Form an Agent's Chromosome.}
+%\end{figure*}
+ 
+
+This process requires a significant effort, as designers have to define all avatars with distinctive appearance and a library of related textures, clothing and attachments in order to ensure high variety. In order to reduce the effort, we propose to design and use \textit{parametric avatars} \cite{lewis2000a} \cite{trescak2012v}, which are avatars with visual features that can be modified using parametric values. For example, parameter ``height'' and ``body fat'' would modify the corresponding parameters of avatar body. Such parameter values of an avatar form genes combined in a chromosome used to reproduce children with diverse appearance.
+
+To better understand how the diversity is achieved - we need to explain the process of genetic reproduction. In this process, an agent's appearance, motivational modifiers (in our case physiological modifiers), and its personality are encoded into ``genes''. As a result, these three groups of genes form three chromosomes, depicted in Figure~\ref{fig:genetics}.
+
+
+
+%\usepackage{graphics} is needed for \includegraphics
+%\begin{figure}[htp]
+%\begin{center}
+   
+%\end{center}
+%\end{figure} 
+
+During reproduction, we take two parents and combine each of the three pairs of related parent chromosomes to produce the child's chromosome. We decide how many genes are inherited from the father and how many from the mother using a \textit{father-mother ratio}. A \textit{crossover} operator is responsible for combining chromosomes. Theory of genetic algorithms defines several crossover operators, i.e. split operator, but for our purposes, we define a specific \textit{fuzzy operator}, that imitates the biological crossover using two pairs of chromosomes \cite{vieira10}:
+
+
+\begin{definition}
+Given mother's chromosome $c^m$ consisting of genes $c^m = g_{1}^{m}g_{2}^{m} \ldots \\ g_{n}^{m}$, the father's chromosome $c^f$ consisting of genes $c^f = g_{1}^{f}g_{2}^{f} \ldots g_{n}^{f}$, the parent \textit{gene selector function} $s_{r^{fm}}^{i}: 2^G$ $\rightarrow$ $\{0, 1\}$ which for position $i$, where $0 \leq i \leq n$,  selects either mother or father gene depending on probability given by the father-mother ratio $r^{fm}$ and the \textit{fuzzy function} $f: \mathbb{I} \rightarrow \mathbb{R}$ which for gene on position $i$ selects a random value in the interval given by $f(i) = [s(i), (g_{i}^{m}-g_{i}^{f}) / 2]$, we define a \textbf{fuzzy} crossover operator $\oslash: C \times C \rightarrow C$ as $c^m \oslash c^f = f(1) \cdot f(2) \ldots f(n)$.
+\end{definition}  
+
+
+Fuzzy operator creates a new gene value by selecting a random value from the interval defined by the gene values of the parents and depending on the specified father-mother ratio takes this value closer to father or mother gene. This process is depicted in Figure~\ref{fig:fuzzy}, where $r^{fm}$ means father-mother ratio and $p(r^{fm})$ means probability of selecting value from the interval, depending on $r^{fm}$. 
+
+Another important process of the biological reproduction is mutation, which is the driving mechanism of evolution and novelty in species. We mimic the mutation process by modifying the value of pre-defined number of genes to the value from outside of the previously mentioned interval. The result of genetic manipulations is a new chromosome using which we can reconstruct a new child, its appearance, physiological needs and a personality.
+
+Once the appearance of the avatars representing the base population has been specified in a parametric fashion - a diverse crowd of a desired size can be automatically generated following the aforementioned genetic principles. The agents in the crowd will have diverse appearance, while at the same time the important ethnic features of their appearance will be preserved. In order to introduce diversity of their behaviour - further steps of the methodology need to be completed starting with the configuration of motivational modifiers. 
+
+
+\subsection{Step 2: Configure motivational modifiers}
+
+\label{sec:step2}
+
+Genetic approach is also used to diversify agent behaviour. For this purpose, \textit{motivational modifiers} are encoded into genes of the chromosome. Therefore, in this step,  for each member of the base population the \textit{motivational modifiers} are specified. In case of physiological motivation, these modifiers relate to hunger, thirst, fatigue and comfort, and represent the decay rate in which agents are getting hungry, thirsty, tired and sleepy. To avoid an impression that every single agent follows the same day cycle and performs the same set of actions at the same time, these values must be different for every agent from the base population. The more diverse these values are in the base population, the more diversity will be present in the circadian rhythms of the resulting crowd.
+
+
+\subsection{Step 3: Specify personality traits}
+\label{subSec:personalityTraits}
+
+\label{sec:step3}
+
+While diverse motivational modifiers assure execution of actions at various times, agent personalities determine the kind of actions the agents will execute.  In this step, for each member of the base population its personality is specified using the popular OCEAN model \cite{OCEAN}, which captures five personality traits: \textit{openness, conscientiousness, extroversion, agreeableness and neuroticism}. Openness relates to imaginative, creative aspect of a person. Consciousness captures the ability to be organised and careful. Extroversion defines, how social and outgoing a person is. Agreeableness relates to ability to cope with people, friendliness and generosity. Neuroticism defines tendency for negative emotions and instability. 
+
+Combination of the OCEAN values defines a specific character. Explaining, how to define a specific character is out of scope of this work, therefore we regard interested reader to existing publications \cite{bartneck2002} \cite{Steunebrink_Dastani_Meyer_2009}. For the purposes of this methodology, it is important that agents forming the base population have different personality values, so that during genetic reproduction their children will have new, emerging personalities. In Section~\ref{sec:evaluation}, we present how the diversity of parent personalities affects their children, and how it determines which actions they select as the result of having a certain personality type. 
+
+In order for agents to be able to select an action that is most relevant for their personality, such action has to be annotated by following \textit{personality facets} \cite{howard1995}: \textit{temptation, gregariousness, assertiveness, excitement, familiarity, straightforwardness, altruism, compliance, modesty} and \textit{correctness}. Using values of personality facets, the agent selects an action that provides the highest utility for its personality type \cite{bartneck2002} \cite{howard1995}. See Table~\ref{tab:Facets} for an example of annotations for \emph{work}, \emph{beg}, \emph{steal} and \emph{search} actions.
+
+Often, actions such as ``work'' have various meaning in the context of different social groups. Working for fishermen means to catch fish, while for pot makers it means to make pots. Therefore, in the next step of the methodology, the institution is specified, which defines all the social groups, their interactions and also defines the meaning and parameters of specific actions, e.g. determines how quickly a particular object satisfies hunger.
+
+
+\subsection{Step 4: Formalise Social Norms and Roles}
+
+\label{sec:step4}
+
+To define social groups, their actions and interactions, an Electronic Institutions (EI), a well established Organisation-Centred Multi-Agent System (OCMAS) is specified. EI establishes what agents are permitted and forbidden to do as well as the constraints and the consequences of their actions \cite{esteva2003}. In general, an EI regulates multiple, distinct, concurrent, interrelated, dialogic activities, each one involving different groups of agents playing different roles. Definition of an EI consists of the following four components:
+
+First, a \textit{dialogical framework} specifies social roles involved in the simulation and their hierarchy. Figure~\ref{fig:df} depicts the role structure of the simulation of Uruk 3000 B.C. (see Section~\ref{sec:evaluation}). Apart from the role structure, the dialogical framework defines ontology, a common language for communication between agents. 
+
+\begin{figure}[t]
+\sidecaption[t]
+\includegraphics[width=0.6\textwidth]{Images/dialogicFramework}
+\caption{Role hierarchy}
+\label{fig:df}       % Give a unique label
+\end{figure}
+
+%%\usepackage{graphics} is needed for \includegraphics
+%\begin{figure}[!ht]
+%	\sidecaption[t]
+%    \includegraphics[width=0.8\columnwidth]{Images/dialogicFramework}
+%    \caption{Role hierarchy}
+%    \label{fig:df}
+%\end{figure}%
+
+
+Second, a \textit{performative structure} isolates specific activities (also called scenes) that can be performed within an Electronic Institution. It defines how agents can legally move among different scenes (from activity to activity) depending on their role. Furthermore, a performative structure defines when new scene executions start, and if a scene can be multiply executed at run time. A performative structure can be regarded as a graph whose nodes are both scenes and transitions (scene connectives), linked by directed arcs (See Figure \ref{fig:ps}). The type of transition allows to express choice points (Or transitions) for agents to choose which target scenes to enter, or synchronisation/parallelization points (And transitions) that force agents to synchronise before progressing to different scenes in parallel. The labels on the directed arcs determine which agents, depending on their roles, can move between scenes to transitions.
+
+
+\begin{figure}[!ht]       
+    \includegraphics[width=\columnwidth]{Images/performativeStructureNew}
+    \caption{Performative structure}
+    \label{fig:ps}
+\end{figure}
+
+
+Third, for each activity, interactions between agents are articulated through agent group meetings expresses as \textit{scene protocols}, which follow well-defined interaction protocols, whose participating agents may change over time (agents may enter or leave). A scene protocol is specified by a directed graph whose nodes represent the different states of a dialogic interaction between roles (See Figure~\ref{fig:eatScene} and Figure~\ref{fig:tradeScene}). Its arcs are labelled with illocution schemes (whose sender, receiver and content may contain variables) or time-outs.
+
+
+%\usepackage{graphics} is needed for \includegraphics
+
+\begin{figure}[t]
+\sidecaption[t]
+\includegraphics[width=0.4\textwidth]{Images/eatScene}
+\caption{Eat scene protocol}
+\label{fig:eatScene}       
+\end{figure}
+
+
+\begin{figure}[t]
+\sidecaption[t]
+\includegraphics[width=0.6\textwidth]{Images/tradeScene}
+\caption{Trade scene protocol}
+\label{fig:tradeScene}      
+\end{figure}
+
+Definition of EI is fundamental to agent reasoning and our dynamic planning algorithm that constructs a list of actions to fulfill the current goal by finding a path (sequence of actions) that make the agent go into the desired scene and reach a desired state within this scene.
+
+An institution provides agents with knowledge about possible actions that can be performed. The next step of the methodology provides means of visualising these actions in the virtual world.
+
+
+\subsection{Step 5: Adaptation and Annotation of the Environment}
+
+\label{sec:adaptation}
+  
+For purposes of visualisation, institutional actions must have corresponding objects, animations and scripts. In this step, objects of the virtual world related to such actions are created and annotated with specific meta-data, so that agents know that a connection between institutional illocutions and objects is established. Agents use annotations in their planning, which is affected by the current state of the environment. Therefore, interactive objects have to contain information on what action they provide and what are the action parameters \cite{trescak_thesis}.
+
+Adaptation and annotation of the environment is the last step that requires manual input. In this last step we generate the population of the simulation and make it act within the simulated virtual environment.  
+
+
+
+\subsection{Step 6: Generating the Population}
+
+\label{sec:generation}
+
+Generation of population is a fully automatic process, where the desired number of ``children'' is generated from the base population using genetic approach described in Section~\ref{sec:step1}. Initially, children are only sets of chromosomes and their appearance has to be reconstructed in a given virtual world. Once connected to the virtual world, they start automatically generate goals and act upon them.
+
+
+
+\section{Case Study: Uruk 3000 B.C.}
+\label{sec:CaseStudy}
+
+
+In order to highlight the key aspects of our approach, we have applied it to simulating one of the humanity's first cities - the city of Uruk 3000 B.C. To further address the agility of our approach, we apply our methodology first to Second Life\footnote{\url{http://secondlife.com} (last visited 06/2015)}, a well known virtual world platform, and then to Unity 3D\footnote{\url{http://unity3d.com} (last visited 06/2015)}, the popular game engine. The Second Life simulation, serves to present the life of Uruk to wide public, using well-know virtual world platform with many existing users. The drawback of Second Life is in its lacking capability of handling large societies of intelligent agents (or non-playable characters, NPCs). On the other hand, Unity 3D facilitates the creation of sophisticated single-user and multi-user 3D games, and also provides the possibility to execute large societies. The size of the society is bounded only by the computational capability of the hardware, on which the game is executed. In this section, we describe how our methodology facilitates deployment of sophisticated historical simulation to both platforms and estimate and compare their work load estimates.  
+
+
+\subsection{Preparation: Designing the World} 
+
+Before we can apply our methodology, we need to design the 3D environment of the simulation. In Second Life, we started with an existing 3D model of the city that included key buildings, plants, animals and terrain. This model was developed by archaeologists and provides some level of historical exactness. For Unity 3D, we have recreated this 3D model in Google Sketchup and Blender. Furthermore, we have modelled historical objects used by various crafts belonging to the epoch. These 
+objects include beds positioned on roofs, various chairs and tables, pots for cooking, market equipment, pottery ring, spears, and spare spear parts, fisherman boats and rows. 3D design requires a lot of effort, and the preparation step took significantly longer then design and execution of the city population. Figure~\ref{fig:market} portraits the 3D design of the market, executed in Unity 3D, with several, custom designed objects. Figures~\ref{fig:sl} and \ref{fig:unity} compare the visualisations in both, Second Life and Unity 3D. 
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\columnwidth]{Images/market}
+    \caption{3D design of the Uruk market with live avatars}
+    \label{fig:market}
+\end{figure}%
+
+
+\begin{figure}[!ht]
+	\includegraphics[width=\textwidth]{Images/UrukSL} 
+	\caption{Second Life}
+	\label{fig:sl}
+\end{figure}
+
+\begin{figure}[!ht]
+	\includegraphics[width=\textwidth]{Images/UrukUnity}
+	\caption{Unity 3D}
+	\label{fig:unity}
+\end{figure}
+
+
+With the static 3D design of the environment in place, we can start applying our methodology an populate this environment with autonomous agents.  
+ 
+\subsection{Step 1: Design the base population}
+
+When defining the base population is Second Life, we considered only one ethnic group of Uruk citizens. Therefore, we designed only two members of the base population portrayed in Figure~\ref{fig:generatingChildren}a and Figure~\ref{fig:generatingChildren}b, using which we have generated the rest of the population. 
+
+
+\begin{figure}[!ht]
+	\begin{tabular}{cccc}
+	\includegraphics[width=0.25\textwidth]{Images/Father} &
+	\includegraphics[width=0.25\textwidth]{Images/Mother} &
+	\includegraphics[width=0.25\textwidth]{Images/Child} &
+	\includegraphics[width=0.25\textwidth]{Images/Mutant} \\
+	(a) Mother & (b) Father & (c) Child & (d) Mutant
+	\end{tabular}
+	\caption{Generating crowd appearance in Second Life}
+    \label{fig:generatingChildren} 
+\end{figure}
+
+
+Figure~\ref{fig:generatingChildren}c, depicts a child generated without mutation. This child clearly carries visual traits from both parents, having mother's nose, but father's mouth. Figure~\ref{fig:generatingChildren}d depicts the child of the same parents, but with high level of mutation. Clearly, some visual traits are still visible (e.g. nose, jaw shape), yet, there are new emergent visual features, such as skin colour.
+
+In Unity 3D, we have applied a bit different approach and we have generated the base population using the \textit{genotype rules} \cite{trescak2012v}. Using such rules we can specify a racial or ethnic profile, which limits gene values only to the specific range. For example, we can specify what shades of skin colour can be used, what is the approximate size of the nose, what is the range of person height and so on. Yet, this approach can only generate avatars belonging to the same race/ethnic and does not allow us to generate intra ethnic avatars. Since we are generating avatars belonging to the ancient Uruk ethnic, this is not a problem.
+
+\begin{figure}[!ht]
+    \includegraphics[width=\textwidth]{Images/experimentGrid}
+    \caption{Detail of the crowd generated for Unity 3D.}
+    \label{fig:unityCrowdDetail}
+\end{figure}%
+
+
+
+To modify and visualise avatars in Unity 3D,we used the open source Unity Multipurpouse Avatars\footnote{\url{http://u3d.as/content/uma-steering-group/uma-unity-multipurpose-avatar/67d} (last visited 04/2014)} technology for generating random avatars. We have extended the default randomisation mechanism that has only limited control over generated avatars, with our genetic approach allowing to generate avatars belonging to a specific ethnic. 
+
+Figure~\ref{fig:unityCrowdDetail} depicts the sample of ten avatars generated from the initial population of five avatars. In the base population we have two ethnics, Caucasian (Adam and Bea) and Sumerian (Cyril, Diana and Eva). We have used western names for the sumerian population only for convenience, in order to code them alphabetically by the first letter in their name (A-E). Generated children are named by coded names of their parents, the crossover operator and the mutation level used during generation process. To portrait the preservation of ethnic features we have designed all members of sumerian population with bigger, distinctive noses and darker skin colour, while caucasian population has smaller noses and and lighter skin colour. Child of C+D in the first row and C+E in the second row obviously carry on only the sumerian features, although C+D shows also very distinct features, due to the high level of mutation that has been used. Interesting result is in the second row, where we depict four different children of A+E, each of them visually distinct, yet clearly carrying features from both father and mother. Two children are quite small, with lighter skin or bigger ears as their father, others are taller, or with darker skin and smaller ears as their mother.
+
+Figure~\ref{fig:unityCrowdOverview} depicts the society of 150 avatars, generated from base population belonging to the same ethnic. As a result, none of the generated avatars carries caucasian traits and skin colour. The apparent difference is the overall graphic quality, which is prevailing in Unity 3D.
+
+
+\begin{figure}[!ht]
+    \includegraphics[width=\textwidth]{Images/bigCrowd3}
+    \caption{Overview of the crowd generated for Unity 3D.}
+    \label{fig:unityCrowdOverview}
+\end{figure}%
+
+\subsection{Step 2: Configure motivational modifiers.}
+
+Base population serves not only to generate avatars with unique appearance, but also with a unique (or non-uniform) behaviour. As a result, in the next step, we defined the physiological modifiers of the base population. We set various decay rates for hunger, thirst, fatigue and comfort for each member of the population. Avatars generated from the base population will obtain varied and mutated values of these modifiers. Since each modifier will have a different value, avatars will become hungry or tired in distinct intervals, executing their actions non-uniformly. Figure~\ref{fig:physiology} shows the graphical user interface, that facilitates the specification of physiological properties.  
+
+
+
+\subsection{Step 3: Specify personality traits}
+
+Physiological motivation solves the (when) problem of uniformity, when agents execute their actions at various time frames. On the other hand, having avatars with distinct personalities solves the (what) problem of uniqueness, when agents perform actions matching behavioural profile. As a result, we define personalities for each agent using the OCEAN model. Figure~\ref{fig:personality} shows the graphical user interface, that facilitates the specification of personality properties. In Section~\ref{sec:evaluation} we describe the setups for personalities that were used. 
+
+\begin{figure}[!ht]
+    \includegraphics[width=\columnwidth]{Images/physiology}
+    \caption{User interface for the definition of physiological properties of an avatar.}
+    \label{fig:physiology}
+\end{figure}%
+
+
+Apart from the definition of agent personalities, we annotated all actions and relate them to a specific personality, using personality facets (see Section~\ref{subSec:personalityTraits}). Table~\ref{tab:Facets} shows four actions that Uruk agents perform to satisfy the goal of ``eating''. In this table, there are four actions, i.e. beg, work, search and steal, and nine personality facets, e.g. temptation, gregariousness, assertivity with valued ranging from -1 (low) to 1 (high). These facets work as modifiers used to calculate utility of a given action in relation to a specific personality. The higher the utility, the more probable is that the action will be selected. ``Stealing'' action is defined for agents with more aggressive personalities (very low correctness, low altruism), ``begging'' for agents with low-confidence (very low assertivity, higher correctness) and ``working'' and ``searching'' for more neutral personalities with varying sense of correctness. It is probable, that we will have to adjust these values later on, but for now it sufficed.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\columnwidth]{Images/personality}
+    \caption{User interface for the definition of personlity properties of an avatar.}
+    \label{fig:personality}
+\end{figure}%
+
+\begin{table}
+\caption{Personality facets of agent actions.}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|}
+\hline
+% & \rotatebox{90}{\bf Temptation} & \rotatebox{90}{\bf Gregarious.~} & \rotatebox{90}{\bf Assertivity} & \rotatebox{90}{\bf Excitement} & \rotatebox{90}{\bf Familiarity} & \rotatebox{90}{\bf Altruism} & \rotatebox{90}{\bf Compliance} & \rotatebox{90}{\bf Modality} & \rotatebox{90}{\bf Correctness} \\ \hline
+
+  & \textbf{Tempt.} & \textbf{Gregar.} & \textbf{Assert.} & \textbf{Excitment} & \textbf{Famil.} & \textbf{Altruism} & \textbf{Compliance} & \textbf{Modality.} & \textbf{Corr.} \\ \hline
+\textbf{Beg} & 0 & 0 & -0.5 & 0 & 0 & 0 & 0.5 & 0 & 0.5 \\ \hline
+\textbf{Work} & 0 & 0 & 0.5 & 0 & 0 & 0 & 0 & 0 & 1 \\ \hline
+\textbf{Search} & 0.5 & 0 & 0.75 & 0.5 & 0 & -0.25 & -0.5 & 0 & -0.5 \\ \hline
+\textbf{Steal} & 1 & 0 & 1 & 1 & 0 & -1 & -1 & 0 & -0.75 \\ \hline
+\end{tabular}
+\label{tab:Facets}
+\end{table} 
+
+
+\subsection{Step 4: Formalise Social Norms and Roles}
+%
+
+Next, we defined all components of the Electronic Institution, with roles of fisherman, spear-maker, pot-maker, pries, king and wife (see Figure~\ref{fig:df}). All of these roles are sub-roles of \textit{citizen}, which holds all common properties for all roles, e.g. inventory of owned items. 
+
+Then, we defined possible actions of agents in specific scene protocols (see Figure~\ref{fig:scenes}). For current roles we defined pray, eat, make spear, make pot, trade and fish protocol. Make spear, make pot and fish protocol belong to the scene ``Work'', and agents select the correct protocol based on their role. Most of these protocols only command a single agent what actions need to be performed to achieve its goal. The exception is the fishing protocol, which defines collaborative actions for two agents, where one agent has to row a boat, while the other is fishing. Therefore, fisherman always have to agree to go fishing in pairs. 
+
+Finally, we grouped scene protocols in a performative structure (see Figure~\ref{fig:ps}), which restricts execution of actions in scenes to specific roles.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\columnwidth]{Images/unityCrowdAction}
+    \caption{Working on the land}
+    \label{fig:praying}
+\end{figure}%
+
+\subsection{Step 5: Adaptation and Annotation of the Environment}
+
+For all actions and interactions, we have recorded animations, such as begging or stealing food, using motion capture and copied them in ".BHV" format to Second Life and with the help of Blender 3D, we have converted ".BVH" file to Unity 3D. Recording animations and their subsequent processing in any platform is a very delicate task and usually requires professional crew and equipment. Since we had no such possibility our own acting performance sufficed. 
+
+Moreover, since 3D object carry no meta-information on their possible purpose, we have added related objects to the virtual world model and annotated the environment so that agents can use them in their planning. For example, agents use the 3D object camp fire to cook their food. Therefore, we annotate that this 3D object provides action (illocution) ``cook'' from the scene ``Eat'' (annotated as action:Eat.cook). As a result, when agent plans its action, it knows that it has to interact with camp fire object to perform the ``Eat.cook'' action. In another example, we annotated the a pottery ring with ``action:Work.PotMaker.makePot'', what defines that pottery ring provides action makePot in the scene protocol ``PotMaker'' from the scene ``Work''.
+
+
+\subsection{Step 6: Generating the Population}
+
+In the last step, we generated a population of agents and connected these to Second Life. Each agent had a unique appearance and automatically started fulfilling its goals. Agents were correctly selecting their goals based on their physiology, executing them at various intervals due to different physiological modifiers, planing their actions based on their personality and social norms, and executing them in the simulated environment. Figure~\ref{fig:execution} shows some virtual agents from the resulting simulation. 
+
+%\begin{figure} 
+%        \centering
+%        \begin{subfigure}[b]{0.24\textwidth}
+%                \centering
+%                \includegraphics[width=\textwidth]{Images/Crowd}
+%                \caption{Crowd}
+%               \label{fig:crowd}
+%        \end{subfigure}
+%        \begin{subfigure}[b]{0.24\textwidth}
+%                \centering
+%                \includegraphics[width=\textwidth]{Images/Begging}
+%                \caption{Begging}
+%                \label{fig:beg}
+%        \end{subfigure}
+%        \begin{subfigure}[b]{0.24\textwidth}
+ %               \centering
+ %               \includegraphics[width=\textwidth]{Images/Working}
+ %               \caption{Working}
+ %               \label{fig:work}
+ %       \end{subfigure}
+ %       \begin{subfigure}[b]{0.24\textwidth}
+ %               \centering
+ %               \includegraphics[width=\textwidth]{Images/Stealing}
+ %               \caption{Stealing}
+ %               \label{fig:steal}
+ %       \end{subfigure}
+ %       \caption{Scenes from Uruk 300 BC}
+ %       \label{fig:execution} 
+%\end{figure} 
+
+\begin{figure}
+\begin{center}
+  \includegraphics[width=\textwidth]{Images/City_combined3}
+  \caption{ Everyday Life in the City of Uruk  3000 B.C.}
+  \label{fig:execution}
+\end{center}
+\end{figure}
+
+
+% \section{Results: Uruk 3000 BC}
+% \label{sec:results}
+% 
+% Concerning the variety of appearance of the generated crowd, although Second Life provides more that 200 different appearance traits that can be modified, with only two members of the base population generated children tend to look similar. Therefore, using small mutation (2\% - 5\%) produces children with specific traits that strongly distinguishes them from other avatars, assuring variety of the crowd. The problem of higher mutation (> 10\%) is that it can lead to unwanted results and produce actual ``mutants''. Another option is to define bigger variety of the base population, what increases effort, but provides more controllable results, as no, or very low mutations are in play. 
+% 
+% Concerning the variety of behaviour, it takes significantly more effort (9.5 hours) than appearance and covers four steps of our methodology. First, we configured configured physiological modifiers and specified personality traits of parents. We have performed two separate experiments with various values for personalty (see Section~\ref{sec:experiments}). Then, we have defined the Electronic Institution, in which we have defined all roles, their actions and interactions between roles. The complexity of this step varies depending on the complexity of simulation and interactions (in our case 3.5 hours). The components of the EI are depicted in Figure~\ref{fig:eicomponents1} and Figure~\ref{fig:scenes}. 
+
+% Finally, we have run generated agents in Second Life. Although, we have generated 100 unique agents, due to the limitations of Second Life, we could only execute 20 agents. As portrayed in Figure~\ref{fig:results}, 
+
+%\begin{figure*}[!h!t]
+%        \centering
+%        \begin{subfigure}[b]{0.5\textwidth}
+%                \centering
+%                \includegraphics[width=\columnwidth]{Images/unityCrowdAction}
+%                \caption{Praying by the temple}
+%                \label{fig:praying}
+%        \end{subfigure}%
+%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc.
+%          %(or a blank line to force the subfigure onto a new line)
+%        \begin{subfigure}[b]{0.47\textwidth}
+%                \centering
+%                \includegraphics[width=\columnwidth]{Images/school}
+%                \caption{Uruk School}
+%                \label{fig:school}
+%        \end{subfigure}
+%        \caption{Every day life in the City of Uruk (Unity 3D).}
+%        \label{fig:urukAction}
+%\end{figure*}  
+
+
+
+
+\section{Evaluation}
+\label{sec:evaluation}
+
+In this section we analyse our results and estimate the effort (in hours) needed to set-up and execute the simulation of Uruk in both environments. Then, we describe two experiments, that evaluate the diversity of generated agent behaviour.
+
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\columnwidth]{Images/school}
+    \label{fig:school}
+    \caption{Uruk School}
+\end{figure}%
+
+\subsection{Second Life}
+
+We estimate that the total time spent on completing the case study from Section~\ref{sec:CaseStudy} was close to 7 days. The process was relatively fast as we have already had a model of the city and we focused only on generating the population. Step 1, definition of base population took us three days, where most of this time was spent on modelling clothing and attachments for avatars. Second Life provides parametric avatars with possibility to change more than 200 visual features. Therefore designing the body of the avatars took us only a couple hours per avatar. Steps 2 and 3, in our case took only one hour to complete, as the physiological modifiers and personality were defined only focusing on having wide range of values (rather than trying to achieve some pre-determined global personality skew in the resulting population). Step 4, definition of institution took 1 day, during which we designed all scenes and a performative structure and tested agent interactions. Also, we studied how to set-up the personality facets of personality-based actions. Step 5 took a lot of effort and time, in total 4 days. During this time we recorded and tuned all the animations, designed all interactive objects (e.g. pot-making ring) and scripted their behaviour. Step 6 is fully automatic, generation of 100 agents took only a few seconds, visualisation of each avatar in Second Life takes about 30 seconds per avatar. 
+
+%In the remainder of this section we evaluate the diversity of behaviour of the generated agents.
+
+%\begin{figure} 
+%	\begin{tabular}{ccc}
+%        \includegraphics[width=\textwidth]{Images/Experiment1-mf}
+%                \caption{Parents}
+%                \label{fig:ex1mf}
+%        \end{subfigure}%
+%        &
+%        \begin{subfigure}[b]{0.47\textwidth}
+%                \centering
+%                \includegraphics[width=\textwidth]{Images/Experiment1-children}
+%                \caption{Children personalities}
+%                \label{fig:ex1ch}
+%        \end{subfigure}
+%        &
+%        \begin{subfigure}[b]{0.24\textwidth}
+%                \centering
+%                \includegraphics[width=\textwidth]{Images/Experiment1-actions}
+%                \caption{Actions}
+%                \label{fig:ex1a}
+%        \end{subfigure}
+%        \caption{Exp. 1: Children of parents with opposite personalities (no mutation).}
+%        \label{fig:resultsOppositePersonalities} 
+%\end{figure} 
+
+
+
+\subsection{Unity 3D}
+
+We estimate that the total time spent on completing the case study from Section~\ref{sec:CaseStudy} was close to 25 days. The increase in time is due to the fact, that we needed to re-create manually the 3D design of the city (7 days) as well as all 3D objects (5 days) and avatar clothing (6 days). Since we were able to re-use animations from Second Life, we only needed to convert them from .BVH format to .FBX format in Blender 3D. Converted animations had to be adjusted and programmed to be used with Unity (i.e. Mecanim). The conversion and animation adjustments took us 2 days. Then, we have annotated the environment with meta-data used by agents during reasoning about possible plans to accomplish their goals. In this case annotation is done directly in Unity 3D, via custom MonoBehaviour objects. Once all the platform-specific steps were taken we were able to reuse all other information from the Second Life setup. This information included the definition of the institution (which is exactly the same), personality setups for the base population, their daily plans and related cultural information for the institutional roles. It is here where our methodology proves its strong re-usability capability. As a result it took us only 1 day, to adjust steps 2-6 to Unity 3D.
+
+\subsection{General Methodology}
+
+Using our methodology, in combination with modern game engines and 3D virtual worlds, we significantly cut down the time to populate historical 3D simulations. The drawback of our approach is that we rely on parametric avatars with ability to modify the avatar appearance and clothing using declarative (visual) parameters. But, this is not a major issue, since we already possess the technology for Unity 3D and Second Life, and other game engines offer similar functionality, although in the form of paid plugins. 
+
+Having parametric avatars and employing our genetic approach we can generate unique, ethnic avatars in a very little time. Using motion capture, we can easily animate these avatars and believable results depend only on exact historical data and acting skills. Furthermore, using the Electronic Institution technology, we can declaratively specify the social structures and interaction protocols, used by agents to automatically reason about their possible actions. Electronic institution can be tweaked during the simulation runtime, decreasing the debugging efforts in comparison to traditional approach, where simulation has to be restarted after every change.
+
+%\noindent \textbf{Generating children of parents with diverse personalities.} 
+
+\subsection{Generating children of parents with diverse personalities.} 
+
+To test the validity of generating agents with various behaviour, we performed two experiments. In the first experiment, we set-up diverse personalities of parents, where one parent had very low confidence, while the other was very aggressive (see Figure~\ref{fig:resultsOppositePersonalities}a). When hungry, one parent chooses to beg, the other one to steal. Then, we have generated their 100 children, with father-mother ratio set to 30\% (agents will have 70\% of their genes closer to their mother). Figure~\ref{fig:resultsOppositePersonalities}b depicts the highly varying personality profiles of their children. We let generated agents decide what to do when hungry and observed emerging behaviour of searching for food and working in 40\% of generated children (see Figure~\ref{fig:resultsOppositePersonalities}c). Only a few children decided to steal as the father-mother ratio was in favour of the mother.  
+
+
+\begin{figure}[h!t]
+	\begin{tabular}{ccc}
+        \includegraphics[width=0.24\textwidth]{Images/Experiment1-mf} &
+        \includegraphics[width=0.47\textwidth]{Images/Experiment1-children} &
+        \includegraphics[width=0.24\textwidth]{Images/Experiment1-actions} \\
+        (a) Parents & (b) Children personalities & (c) Actions
+    \end{tabular}
+    \caption{Exp. 1: Children of parents with opposite personalities (no mutation).}
+    \label{fig:resultsOppositePersonalities} 
+\end{figure} 
+
+\subsection{Generating children of parents with similar personalities.}
+
+In the second experiment we set-up father and mother with similar personalities (see Figure~\ref{fig:resultsSimilarPersonalities}a) and during generation applied a high level of mutation (25\%). We observed the children personalities and actions, depicted in Figure~\ref{fig:resultsSimilarPersonalities}b. Generated children had very similar personalities, with occasional exceptions, due to mutations. In this experiment father choses to search for food, while mother choses again to beg. Having the same father-mother ratio (30\%), most of children decide to beg, just like their mother (see Figure~\ref{fig:resultsSimilarPersonalities}c). Several mutated children decided to work.  
+
+\begin{figure}[h!t]
+	\begin{tabular}{ccc}
+        \includegraphics[width=0.24\textwidth]{Images/Experiment2-mf} &
+        \includegraphics[width=0.47\textwidth]{Images/Experiment2-children} &
+        \includegraphics[width=0.24\textwidth]{Images/Experiment2-actions} \\
+        (a) Parents & (b) Children personalities & (c) Actions
+    \end{tabular}
+    \caption{Exp 2: Children of parents with similar personalities (mutation 25\%).}
+    \label{fig:resultsSimilarPersonalities}
+\end{figure} 
+
+The above experiments showed that having a base population with diverse personalities leads to generating children with diverse behaviour. Having parents with similar personalities results in their children having similar personalities and predominantly showing the same behaviour, unless they undergo mutation. 
+
+ 
+\section{Conclusions}
+\label{sec:conclusion}
+
+
+In this work, we presented a methodology for generating crowds for the purposes of social simulations. This methodology is using genetic operations to produce individuals with unique appearance and behaviour. We have separated the methodology into six steps. First step is the definition of the base population, which specifies the visual traits of the whole population, although using mutation we may achieve novelty during generation. Second step is the definition of motivational modifiers, where motivation serves as the goal selection mechanism. In our case, we used physiological needs as the main motivation. Third step is the definition of personality traits, where personality affects agents decisions during planning and agents select actions that best match their profile. We are using well-established OCEAN model for the personality definition. In the context of social simulations, agents belong to specific social, ethnic or cultural groups and have to obey specific social norms. Therefore, fourth step is the definition of the social system and norms, in our case using Electronic Institutions. The fifth step is the adaptation and annotation of the environment that reflects all actions specified in the electronic institution. Agents are using these annotation to automatically plan their actions and interact with the environment. Following these steps results generating a diverse agent population having a high degree of variety in their appearance and behaviour, while also demonstrating substantially high degree of complexity of actions being performed by the agents. 
+
+
+\bibliographystyle{IEEEtran} 
+\bibliography{bibliography/biblio}
+
+\end{document}
+
+    
+    
+    
